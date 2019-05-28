@@ -15,6 +15,8 @@
 #define NUM_OF_BITS_FOR_DEMAND_VALUE 8
 #define REPRODUCTION_PROBABILITY 70
 #define REPRODUCTION_POINT_DEVIDER 7
+#define MUTATE_MEMBER_PROBABILITY 10
+#define MUTATE_GEN_PROBABILITY 10
 
 using namespace std;
 
@@ -187,10 +189,10 @@ void reproduction(vector<bool> firstMember, vector<bool> secondMember, vector<ve
 
 void mutate(vector<vector<bool>> &reproducedMembers) {
 	for (int k = 0; k < reproducedMembers.size(); ++k) {
-		if (rand() % 10 == 7) {
-			for (int i = 0; i < reproducedMembers[k].size(); i += 4) {
-				if (rand() % 10 == 7) {
-					for (int j = 0; j < 4; ++j) {
+		if (rand() % 100 <= MUTATE_MEMBER_PROBABILITY) {
+			for (int i = 0; i < reproducedMembers[k].size(); i += NUM_OF_BITS_FOR_DEMAND_VALUE) {
+				if (rand() % 100 <= MUTATE_GEN_PROBABILITY) {
+					for (int j = 0; j < NUM_OF_BITS_FOR_DEMAND_VALUE; ++j) {
 						reproducedMembers[k][i+j] = ((int)rand()) % 2;
 					}
 				}
