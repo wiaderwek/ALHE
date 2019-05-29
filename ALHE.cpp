@@ -107,7 +107,7 @@ int adaptationFunction(vector<bool> member, vector<pair<int, vector<vector<int>>
 			valueOfAdaptationFunction += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE);
 		}
 
-		cout << "Value for " << demandNumber << " demand: " << valueOfAllPathsForDemand << endl;
+		//cout << "Value for " << demandNumber << " demand: " << valueOfAllPathsForDemand << endl;
 		++demandNumber;
 	}
 
@@ -160,7 +160,7 @@ void reproduction(vector<bool> firstMember, vector<bool> secondMember, vector<ve
 		int iteration = 0;
 		for (int i = 0; i < firstMember.size(); i++)
 		{
-			if (i < indexTab[iteration]) {
+			if (i < indexTab[iteration] || iteration == indexTab.size() - 1) {
 				if (iteration % 2 == 0) {
 					reproducedMember1[i] = firstMember[i];
 					reproducedMember2[i] = secondMember[i];
