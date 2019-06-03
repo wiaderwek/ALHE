@@ -101,9 +101,8 @@ int adaptationFunction(vector<bool> member, vector<pair<int, vector<vector<int>>
 			}
 			valueOfAllPathsForDemand += valueFromPathForDemand;
 		}
-		if (pairDemanAndPaths.first-valueOfAllPathsForDemand <= 0) {
-			valueOfAdaptationFunction += abs(pairDemanAndPaths.first-valueOfAllPathsForDemand);
-		} else {
+		valueOfAdaptationFunction += abs(pairDemanAndPaths.first-valueOfAllPathsForDemand);
+		if (pairDemanAndPaths.first-valueOfAllPathsForDemand > 0) {
 			valueOfAdaptationFunction += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE);
 		}
 
@@ -112,8 +111,29 @@ int adaptationFunction(vector<bool> member, vector<pair<int, vector<vector<int>>
 	}
 
 	cout << "Number of transmiters: " << graph.getNumberOfTansmiters(modularity) << endl;
-	valueOfAdaptationFunction += graph.getNumberOfTansmiters(modularity);
+	valueOfAdaptationFunction += modularity * graph.getNumberOfTansmiters(modularity);
 	return valueOfAdaptationFunction;
+}
+
+int calculateNumberOfTransmitersForMember(vector<bool> member, vector<pair<int, vector<vector<int>>>>& demandWithAvailablePaths, int modularity, Graph graph) {
+	int demandNumber = 0;
+	for(pair<int, vector<vector<int>>> pairDemanAndPaths : demandWithAvailablePaths) {
+		int demand = pairDemanAndPaths.first;
+		for(int i = 0; i < pairDemanAndPaths.second.size(); ++i) {
+			int valueFromPathForDemand = 0;
+			for(int j = 0; j < NUM_OF_BITS_FOR_DEMAND_VALUE; ++j) {
+				int demandPositionInMemeber = demandNumber*pairDemanAndPaths.second.size()*NUM_OF_BITS_FOR_DEMAND_VALUE;
+				int pathPostionInDemand = i*NUM_OF_BITS_FOR_DEMAND_VALUE;
+				valueFromPathForDemand += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE - 1 - j)*member[demandPositionInMemeber + pathPostionInDemand + j];
+			}
+
+			if(valueFromPathForDemand != 0) {
+				graph.applyDemand(pairDemanAndPaths.second[i], valueFromPathForDemand);
+			}
+		}
+		++demandNumber;
+	}
+	return graph.getNumberOfTansmiters(modularity);
 }
 
 bool isCorrectPopulation(vector<bool> member, vector<pair<int, vector<vector<int>>>>& demandWithAvailablePaths) {
@@ -314,7 +334,8 @@ int main(int argc, char *argv[])
 					++iteration;
 					if (iteration == numberOfInterations) {
 						std::cout << "Finall solution after "<<iteration<<" iterations: " << endl;
-						std::cout << "Number of needed transmiters: " << result << endl;
+						std::cout << "Number of needed transmiters: " << 
+							calculateNumberOfTransmitersForMember(memberWithMarkMap[i].second, demandsWithAvailablePaths, modularity, graph) << endl;
 						theBestResult = memberWithMarkMap[i].second;
 						printFenotype(theBestResult, demandsWithAvailablePaths, modularity, graph);
 						return 0;
