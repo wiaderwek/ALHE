@@ -13,10 +13,10 @@
 #define DEFAULT_NUM_OF_ITERATIONS 100
 #define SIZE_OF_POPULATION 1000
 #define NUM_OF_BITS_FOR_DEMAND_VALUE 8
-#define REPRODUCTION_PROBABILITY 70
-#define REPRODUCTION_POINT_DEVIDER 7
-#define MUTATE_MEMBER_PROBABILITY 10
-#define MUTATE_GEN_PROBABILITY 10
+#define REPRODUCTION_PROBABILITY 50
+#define REPRODUCTION_POINT_DEVIDER 10
+#define MUTATE_MEMBER_PROBABILITY 50
+#define MUTATE_GEN_PROBABILITY 50
 
 using namespace std;
 
@@ -58,17 +58,16 @@ void printFenotype(vector<bool> member, vector<pair<int, vector<vector<int>>>>& 
 	
 	
 	int valueOfAdaptationFunction = 0;
-	int demandNumber = 0;
+	int offset = 0;
 	for(pair<int, vector<vector<int>>> pairDemanAndPaths : demandWithAvailablePaths) {
 		int demand = pairDemanAndPaths.first;
 		int valueOfAllPathsForDemand = 0;
 		for(int i = 0; i < pairDemanAndPaths.second.size(); ++i) {
 			int valueFromPathForDemand = 0;
 			for(int j = 0; j < NUM_OF_BITS_FOR_DEMAND_VALUE; ++j) {
-				int demandPositionInMemeber = demandNumber*pairDemanAndPaths.second.size()*NUM_OF_BITS_FOR_DEMAND_VALUE;
-				int pathPostionInDemand = i*NUM_OF_BITS_FOR_DEMAND_VALUE;
-				valueFromPathForDemand += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE - 1 - j)*member[demandPositionInMemeber + pathPostionInDemand + j];
+				valueFromPathForDemand += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE - 1 - j)*member[offset + j];
 			}
+			offset+=NUM_OF_BITS_FOR_DEMAND_VALUE;
 
 			cout << "demand: " << demand << " path: ";
 			for(int k = 0; k < pairDemanAndPaths.second[i].size(); ++k) {
@@ -77,24 +76,22 @@ void printFenotype(vector<bool> member, vector<pair<int, vector<vector<int>>>>& 
 			cout << " value: " << valueFromPathForDemand << endl;
 			valueOfAllPathsForDemand += valueFromPathForDemand;
 		}
-		++demandNumber;
 	}
 }
 
 
 int adaptationFunction(vector<bool> member, vector<pair<int, vector<vector<int>>>>& demandWithAvailablePaths, int modularity, Graph graph) {
 	int valueOfAdaptationFunction = 0;
-	int demandNumber = 0;
+	int offset = 0;
 	for(pair<int, vector<vector<int>>> pairDemanAndPaths : demandWithAvailablePaths) {
 		int demand = pairDemanAndPaths.first;
 		int valueOfAllPathsForDemand = 0;
 		for(int i = 0; i < pairDemanAndPaths.second.size(); ++i) {
 			int valueFromPathForDemand = 0;
 			for(int j = 0; j < NUM_OF_BITS_FOR_DEMAND_VALUE; ++j) {
-				int demandPositionInMemeber = demandNumber*pairDemanAndPaths.second.size()*NUM_OF_BITS_FOR_DEMAND_VALUE;
-				int pathPostionInDemand = i*NUM_OF_BITS_FOR_DEMAND_VALUE;
-				valueFromPathForDemand += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE - 1 - j)*member[demandPositionInMemeber + pathPostionInDemand + j];
+				valueFromPathForDemand += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE - 1 - j)*member[offset + j];
 			}
+			offset += NUM_OF_BITS_FOR_DEMAND_VALUE;
 
 			if(valueFromPathForDemand != 0) {
 				graph.applyDemand(pairDemanAndPaths.second[i], valueFromPathForDemand);
@@ -105,51 +102,43 @@ int adaptationFunction(vector<bool> member, vector<pair<int, vector<vector<int>>
 		if (pairDemanAndPaths.first-valueOfAllPathsForDemand > 0) {
 			valueOfAdaptationFunction += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE);
 		}
-
-		//cout << "Value for " << demandNumber << " demand: " << valueOfAllPathsForDemand << endl;
-		++demandNumber;
 	}
 
-	cout << "Number of transmiters: " << graph.getNumberOfTansmiters(modularity) << endl;
 	valueOfAdaptationFunction += modularity * graph.getNumberOfTansmiters(modularity);
 	return valueOfAdaptationFunction;
 }
 
 int calculateNumberOfTransmitersForMember(vector<bool> member, vector<pair<int, vector<vector<int>>>>& demandWithAvailablePaths, int modularity, Graph graph) {
-	int demandNumber = 0;
+	int offset = 0;
 	for(pair<int, vector<vector<int>>> pairDemanAndPaths : demandWithAvailablePaths) {
 		int demand = pairDemanAndPaths.first;
 		for(int i = 0; i < pairDemanAndPaths.second.size(); ++i) {
 			int valueFromPathForDemand = 0;
 			for(int j = 0; j < NUM_OF_BITS_FOR_DEMAND_VALUE; ++j) {
-				int demandPositionInMemeber = demandNumber*pairDemanAndPaths.second.size()*NUM_OF_BITS_FOR_DEMAND_VALUE;
-				int pathPostionInDemand = i*NUM_OF_BITS_FOR_DEMAND_VALUE;
-				valueFromPathForDemand += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE - 1 - j)*member[demandPositionInMemeber + pathPostionInDemand + j];
+				valueFromPathForDemand += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE - 1 - j)*member[offset + j];
 			}
-
+			offset += NUM_OF_BITS_FOR_DEMAND_VALUE;
 			if(valueFromPathForDemand != 0) {
 				graph.applyDemand(pairDemanAndPaths.second[i], valueFromPathForDemand);
 			}
 		}
-		++demandNumber;
 	}
 	return graph.getNumberOfTansmiters(modularity);
 }
 
 bool isCorrectPopulation(vector<bool> member, vector<pair<int, vector<vector<int>>>>& demandWithAvailablePaths) {
 	int valueOfAdaptationFunction = 0;
-	int demandNumber = 0;
+	int offset = 0;
 	for(pair<int, vector<vector<int>>> pairDemanAndPaths : demandWithAvailablePaths) {
 		int demand = pairDemanAndPaths.first;
 		int valueOfAllPathsForDemand = 0;
 		for(int i = 0; i < pairDemanAndPaths.second.size(); ++i) {
 			int valueFromPathForDemand = 0;
 			for(int j = 0; j < NUM_OF_BITS_FOR_DEMAND_VALUE; ++j) {
-				int demandPositionInMemeber = demandNumber*pairDemanAndPaths.second.size()*NUM_OF_BITS_FOR_DEMAND_VALUE;
-				int pathPostionInDemand = i*NUM_OF_BITS_FOR_DEMAND_VALUE;
-				valueFromPathForDemand += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE - 1 - j)*member[demandPositionInMemeber + pathPostionInDemand + j];
+				valueFromPathForDemand += power(2, NUM_OF_BITS_FOR_DEMAND_VALUE - 1 - j)*member[offset + j];
 			}
 			valueOfAllPathsForDemand += valueFromPathForDemand;
+			offset += NUM_OF_BITS_FOR_DEMAND_VALUE;
 		}
 		if (pairDemanAndPaths.first-valueOfAllPathsForDemand > 0) {
 			return false;
@@ -311,7 +300,6 @@ int main(int argc, char *argv[])
 		}
 
 		mutate(reproducedMembers);
-
 		for (int i = 0; i < reproducedMembers.size(); ++i) {
 			memberWithMarkMap.push_back(pair<int, vector<bool>>(adaptationFunction(reproducedMembers[i], demandsWithAvailablePaths, modularity, graph), reproducedMembers[i]));
 		}
@@ -326,7 +314,8 @@ int main(int argc, char *argv[])
 				if (result < bestResultForIteration) {
 					bestResultForIteration = result;
 					iteration = 0;
-					cout << bestResultForIteration << endl;
+					std::cout << "Number of needed transmiters: " << 
+							calculateNumberOfTransmitersForMember(memberWithMarkMap[i].second, demandsWithAvailablePaths, modularity, graph) << endl;
 					i = memberWithMarkMap.size();
 					break;
 				}
