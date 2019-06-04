@@ -60,7 +60,6 @@ void printFenotype(vector<bool> member, vector<pair<int, vector<vector<int>>>>& 
 	int valueOfAdaptationFunction = 0;
 	int offset = 0;
 	for(pair<int, vector<vector<int>>> pairDemanAndPaths : demandWithAvailablePaths) {
-		int demand = pairDemanAndPaths.first;
 		int valueOfAllPathsForDemand = 0;
 		for(int i = 0; i < pairDemanAndPaths.second.size(); ++i) {
 			int valueFromPathForDemand = 0;
@@ -84,7 +83,6 @@ int adaptationFunction(vector<bool> member, vector<pair<int, vector<vector<int>>
 	int valueOfAdaptationFunction = 0;
 	int offset = 0;
 	for(pair<int, vector<vector<int>>> pairDemanAndPaths : demandWithAvailablePaths) {
-		int demand = pairDemanAndPaths.first;
 		int valueOfAllPathsForDemand = 0;
 		for(int i = 0; i < pairDemanAndPaths.second.size(); ++i) {
 			int valueFromPathForDemand = 0;
@@ -104,14 +102,13 @@ int adaptationFunction(vector<bool> member, vector<pair<int, vector<vector<int>>
 		}
 	}
 
-	valueOfAdaptationFunction += modularity * graph.getNumberOfTansmiters(modularity);
+	valueOfAdaptationFunction += graph.getNumberOfTansmiters(modularity);
 	return valueOfAdaptationFunction;
 }
 
 int calculateNumberOfTransmitersForMember(vector<bool> member, vector<pair<int, vector<vector<int>>>>& demandWithAvailablePaths, int modularity, Graph graph) {
 	int offset = 0;
 	for(pair<int, vector<vector<int>>> pairDemanAndPaths : demandWithAvailablePaths) {
-		int demand = pairDemanAndPaths.first;
 		for(int i = 0; i < pairDemanAndPaths.second.size(); ++i) {
 			int valueFromPathForDemand = 0;
 			for(int j = 0; j < NUM_OF_BITS_FOR_DEMAND_VALUE; ++j) {
@@ -127,10 +124,8 @@ int calculateNumberOfTransmitersForMember(vector<bool> member, vector<pair<int, 
 }
 
 bool isCorrectPopulation(vector<bool> member, vector<pair<int, vector<vector<int>>>>& demandWithAvailablePaths) {
-	int valueOfAdaptationFunction = 0;
 	int offset = 0;
 	for(pair<int, vector<vector<int>>> pairDemanAndPaths : demandWithAvailablePaths) {
-		int demand = pairDemanAndPaths.first;
 		int valueOfAllPathsForDemand = 0;
 		for(int i = 0; i < pairDemanAndPaths.second.size(); ++i) {
 			int valueFromPathForDemand = 0;
