@@ -9,14 +9,16 @@
 #include <fstream>
 #include "Graph.h"
 #include <climits>
+#include <time.h>
 
 #define DEFAULT_NUM_OF_ITERATIONS 100
-#define SIZE_OF_POPULATION 1000
+#define SIZE_OF_POPULATION 3000
 #define NUM_OF_BITS_FOR_DEMAND_VALUE 8
-#define REPRODUCTION_PROBABILITY 50
+#define REPRODUCTION_PROBABILITY 99
 #define REPRODUCTION_POINT_DEVIDER 10
-#define MUTATE_MEMBER_PROBABILITY 50
-#define MUTATE_GEN_PROBABILITY 50
+#define MUTATE_MEMBER_PROBABILITY 1
+#define MUTATE_GEN_PROBABILITY 1
+#define MODULARITY_DIVIDER 1.8
 
 using namespace std;
 
@@ -68,7 +70,7 @@ void printFenotype(vector<bool> member, vector<pair<int, vector<vector<int>>>>& 
 			}
 			offset+=NUM_OF_BITS_FOR_DEMAND_VALUE;
 
-			cout << "demand: " << demand << " path: ";
+			//cout << "demand: " << demand << " path: ";
 			for(int k = 0; k < pairDemanAndPaths.second[i].size(); ++k) {
 				cout << pairDemanAndPaths.second[i][k] << " -> ";
 			}
@@ -102,7 +104,7 @@ int adaptationFunction(vector<bool> member, vector<pair<int, vector<vector<int>>
 		}
 	}
 
-	valueOfAdaptationFunction += graph.getNumberOfTansmiters(modularity);
+	valueOfAdaptationFunction += (modularity / MODULARITY_DIVIDER) * graph.getNumberOfTansmiters(modularity);
 	return valueOfAdaptationFunction;
 }
 
@@ -264,6 +266,8 @@ int main(int argc, char *argv[])
 		numberOfInterations = DEFAULT_NUM_OF_ITERATIONS;
 	}
 
+	clock_t tStart = clock();
+
 	time_t t;
 	srand(time(&t));
 
@@ -317,11 +321,14 @@ int main(int argc, char *argv[])
 				else if (result == bestResultForIteration) {
 					++iteration;
 					if (iteration == numberOfInterations) {
+						theBestResult = memberWithMarkMap[i].second;
+						printFenotype(theBestResult, demandsWithAvailablePaths, modularity, graph);
 						std::cout << "Finall solution after "<<iteration<<" iterations: " << endl;
 						std::cout << "Number of needed transmiters: " << 
 							calculateNumberOfTransmitersForMember(memberWithMarkMap[i].second, demandsWithAvailablePaths, modularity, graph) << endl;
-						theBestResult = memberWithMarkMap[i].second;
-						printFenotype(theBestResult, demandsWithAvailablePaths, modularity, graph);
+						
+						printf("Time taken: %.2fs\n", (double)(clock() - tStart)/CLOCKS_PER_SEC);
+
 						return 0;
 					}
 				}
